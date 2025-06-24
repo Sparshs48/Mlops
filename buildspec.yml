@@ -1,0 +1,39 @@
+version: 0.2
+
+env:
+  variables:
+    AWS_ACCOUNT_ID: 123456789012 # ← replace with your AWS account ID
+    AWS_DEFAULT_REGION: us-east-1 # ← or your region
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws --version
+      - $(aws ecr get-login-password --region $AWS_DEFAULT_REGION \
+        | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com)
+
+  build:
+    commands:
+      - echo Build started on `date`
+      # Frontend
+      - echo Building frontend image...
+      - docker build -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/mlops/frontend:latest ./frontend
+      - echo Pushing frontend image...
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/mlops/frontend:latest
+
+      # YOLO backend
+      - echo Building YOLO backend image...
+      - docker build -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/mlops/yolo-backend:latest ./yolo-v5-flask-app
+      - echo Pushing YOLO backend image...
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/mlops/yolo-backend:latest
+
+      # Depth backend
+      - echo Building Depth backend image...
+      - docker build -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/mlops/depth-backend:latest ./depth-anything-flask-app
+      - echo Pushing Depth backend image...
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/mlops/depth-backend:latest
+
+  post_build:
+    commands:
+      - echo Build completed on `date`
