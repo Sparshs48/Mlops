@@ -2,7 +2,7 @@ version: 0.2
 
 env:
   variables:
-    AWS_ACCOUNT_ID: 123456789012 # ← replace with your AWS account ID
+    AWS_ACCOUNT_ID: 339712963357 # ← replace with your AWS account ID
     AWS_DEFAULT_REGION: us-east-1 # ← or your region
 
 phases:
